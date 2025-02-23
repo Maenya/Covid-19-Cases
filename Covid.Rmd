@@ -1,0 +1,106 @@
+---
+title: "Which Country has the Highest Covid cases as of 2020 June?"
+author: "Maenya"
+date: "2025-02-13"
+output: html_document
+---
+
+
+# Question: Which Country has the Highest Covid cases as of 2020 June?
+
+# loading the libraries
+```{r}
+library(tidyverse)
+  library(dplyr)
+```
+
+
+  
+
+
+# loading the data
+
+```{r}
+covid <- read.csv("covid.csv")
+colnames(covid)
+glimpse(covid)
+
+```
+
+
+
+# checking for missing data
+```{r}
+colSums(is.na(covid))
+
+missing_percentage <- colSums(is.na(covid)) / nrow(covid) * 100
+print(missing_percentage)
+```
+
+
+
+
+# Selecting the columns we will focus on
+```{r}
+covid_select <- covid %>%
+  select("Country_Region", "positive", "total_tested")
+view(covid_select)
+```
+
+
+
+
+
+# Putting all the information from all teh different countries together
+```{r}
+covid_sum <- covid_select  %>% 
+  group_by(Country_Region) %>% 
+  summarise(tested = sum(total_tested, na.rm = TRUE), 
+            positive = sum(positive, na.rm = TRUE)) %>%
+            arrange(desc(positive)) 
+
+view(covid_sum)
+```
+
+
+
+
+# Which countries have high covid cases against teh tested ?
+```{r}
+covid_sum %>%
+  arrange(desc(positive),10)
+```
+
+
+The covid positive cases as per country are as below:
+```{r}
+covid_sum %>%
+  arrange(desc(positive))
+```
+
+
+The top 10 countries with highest Covid cases are;
+
+```{r}
+covid_sum %>%
+  select ("Country_Region", "positive") %>%
+  arrange(desc(positive),10)
+```
+
+
+# Creating a visual for the same
+```{r}
+
+ggplot(covid_sum %>% head(10), aes(x = reorder(Country_Region, positive), y = positive)) +
+  geom_col(fill = "blue") +  # Use a blue color for the bars
+  coord_flip() +  # Flip the axes for better readability
+  labs(title = "Top 10 Countries with Highest COVID-19 Cases",
+       x = "Country",
+       y = "Number of Positive Cases") +
+  theme_minimal()
+```
+
+
+### Conclusion
+
+ Based on the provided data, USA, Italy, Canada, Turkey and Bangladesh had the highest positive Covid cases globally. 
